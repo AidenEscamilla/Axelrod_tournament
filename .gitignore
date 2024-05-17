@@ -1,0 +1,4 @@
+# Local vs code env
+.venv/
+__pycache__
+.tool-versions
