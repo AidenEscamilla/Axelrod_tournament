@@ -225,6 +225,18 @@ def tit_for_devil(player):
    
   return strat_choice
 
+def cool_beans(player):
+  opp_memory = player.get_opponent_memory()
+  my_memory = player.get_self_memory()
+
+  if len(opp_memory) in [0, 1]:  # Turn 1 & 2 defect
+    return "defect"
+                                  #and opponent copied my last move
+  if opp_memory[0] == "cooperate" and opp_memory[1] == my_memory[0]:
+    return "cooperate"  # This will be "nice" to tit_for_tat (and random)
+  else:
+    return "defect"
+
 #Add players here when adding them to the tournament 
 def get_players(number_of_turns):
   players = []
@@ -239,6 +251,7 @@ def get_players(number_of_turns):
   players.append(Player('A^2', tit_for_devil))
   players.append(Player('kaynes', random_or_preset_choices, Player.get_chance_array(75 ,number_of_turns)))
   players.append(Player('Jeff', bad_guy))
+  players.append(Player('Cool_beans', cool_beans))
   return players
   
 
