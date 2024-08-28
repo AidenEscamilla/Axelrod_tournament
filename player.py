@@ -91,7 +91,7 @@ class Player:
   def set_chance_array(self, chance_array):
     self.chance_array = chance_array
 
-  def get_random_array_element(self):
+  def get_next_array_element(self):
     boolean_choice = self.chance_array[self.chance_iter]
     self.iterate_chance()
     return boolean_choice
@@ -99,16 +99,34 @@ class Player:
   
   
 
+# Strategies
 
 def tit_for_tat(player):
-  opp_memoy = player.get_opponent_memory()
+  opp_memory = player.get_opponent_memory()
   choice = None
 
-  if len(opp_memoy) > 0:
-    choice = opp_memoy[-1]
+  if len(opp_memory) > 0:
+    choice = opp_memory[-1]
   else:
     choice = "cooperate"
   
+  return choice
+
+def inverse_tit_for_tat(player):
+  opp_memory = player.get_opponent_memory()
+  choice = None
+
+  if len(opp_memory) > 0:
+    opp_last_choice = opp_memory[-1]
+    # Choose oppositer of what they did last round
+    if opp_last_choice == "cooperate":
+      choice = "defect" 
+    else:
+      choice = "cooperate"
+  
+  else: # 1st choice defect
+    choice = "defect"
+
   return choice
 
 def good_guy(player):
@@ -118,18 +136,58 @@ def bad_guy(player):
   return "defect"
 
 def half_and_half(player):
-  bool_choice = player.get_random_array_element()
+  bool_choice = player.get_next_array_element()
   if bool_choice: # 1 == defect
     return "defect"
   else: # 0 == cooperate
+    return "cooperate" 
+  
+def heart_of_iron_4(player):
+  # cases where it's not tit_for_tat
+  edge_case_1_1 = ["cooperate","defect","cooperate","defect","defect", "cooperate", "cooperate"]
+  edge_case_1_2 = ["cooperate","defect","cooperate","defect","defect", "cooperate", "defect"]
+  edge_case_1_3 = ["cooperate","defect","cooperate","defect","defect", "defect", "defect"]
+  # Cases where it's not myself
+  edge_case_2_1 = ["defect","cooperate","defect","defect","defect", "defect", "defect"]
+  edge_case_2_2 = ["defect","cooperate","defect","defect","defect", "cooperate", "defect"]
+  edge_case_2_3 = ["defect","cooperate","defect","defect","defect", "defect", "cooperate"]
+
+  opp_memory = player.get_opponent_memory()
+  mode = None
+  #round_number = len(self_memory) # Why would I add this here? What're the advantages to this?
+  if len(opp_memory) in [0, 2, 3, 4]: # rounds 1,3,4,5
+    return "defect"
+  elif len(opp_memory) == 1: #round 2
     return "cooperate"
   
+  if opp_memory[:5] == ["defect","cooperate","defect","defect","defect"]:  # Recognize playing vs myself
+    mode = "cooperate"
+  elif opp_memory[:5] == ["cooperate","defect","cooperate","defect","defect"]: # Tit_for_tat recognition
+    mode = "cooperate"
+
+  # if len(opp_memory) >= 7: # Is a guard like this needed below?
+
+  # Was an elif connected to the above block, fixed the bug, why would that be an issue?
+  if mode == "cooperate" and (opp_memory[:7] == edge_case_1_1 or opp_memory[:7] == edge_case_1_2 or opp_memory[:7] == edge_case_1_3):
+    mode = "defect"
+  elif mode == "cooperate" and (opp_memory[:7] == edge_case_2_1 or opp_memory[:7] == edge_case_2_2 or opp_memory[:7] == edge_case_2_3):
+    mode = "defect"
+  
+  if mode:
+    return mode
+  else: # Safety in case mode is not set somehow
+    return "defect"
+  
+
+#Add players here when adding them to the tournament 
 def get_players(number_of_turns):
   players = []
   players.append(Player('50/50', half_and_half, Player.get_chance_array(50, number_of_turns)))
-  players.append(Player('jesus', good_guy))
+  players.append(Player('Mr.Moore', good_guy))
   players.append(Player('devil', bad_guy))
   players.append(Player('tit_for_tat', tit_for_tat))
+  players.append(Player('inverse_tft', inverse_tit_for_tat))
+  players.append(Player('hoi4', heart_of_iron_4))
 
   return players
   
@@ -137,12 +195,19 @@ def get_players(number_of_turns):
 
 
 def main():
-  ROUND_LENGTH = 20
+  ROUND_LENGTH = 10
   fifty_fifty = Player('50/50', half_and_half, Player.get_chance_array(50, ROUND_LENGTH))
+  hoi4 = Player('hoi4', heart_of_iron_4)
   fifty_fifty.print_all()
-  print(fifty_fifty.get_choice())
+  print("###############\n")
+  hoi4.print_all()
+  print("###############\nChoices:\n")
+  print("50/50", fifty_fifty.get_choice())
+  print("hoi4", hoi4.get_choice())
+  print("###############\n")
   fifty_fifty.print_all()
-  print(fifty_fifty.get_choice())
+  print("###############\n")
+  hoi4.print_all()
 
 if __name__ == "__main__":
   main()
