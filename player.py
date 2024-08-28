@@ -100,14 +100,12 @@ class Player:
     # Calculate elements
     number_of_full_patterns = length_of_round // len(choice_pattern)
     partial_pattern_length = length_of_round % len(choice_pattern)
-    print("full: ", number_of_full_patterns)
-    print("partial: ", partial_pattern_length)
+
     for _ in range(number_of_full_patterns):
       output_array.extend(choice_pattern)
     if partial_pattern_length > 0:  # Guard against adding an extra element 
       output_array.extend(choice_pattern[:partial_pattern_length])  # Only add up to the cut-off
   
-
     return output_array
   
   def set_chance_array(self, chance_array):
@@ -211,6 +209,7 @@ def get_players(number_of_turns):
   players.append(Player('inverse_tft', inverse_tit_for_tat))
   players.append(Player('hoi4', heart_of_iron_4))
   players.append(Player('name_here', random_or_preset_choices, Player.get_choice_pattern_array( [1, 1, 0, 1, 1, 1, 0, 1, 1, 1] ,number_of_turns)))
+  players.append(Player('Bob', random_or_preset_choices, Player.get_choice_pattern_array([1, 0, 1, 1, 1, 1, 0, 1, 1, 1], number_of_turns)))
 
   return players
   
