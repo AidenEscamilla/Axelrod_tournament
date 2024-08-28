@@ -198,6 +198,32 @@ def heart_of_iron_4(player):
   else: # Safety in case mode is not set somehow
     return "defect"
 
+def tit_for_devil(player):
+  opp_memory = player.get_opponent_memory()
+  if len(opp_memory) == 0:  # Turn 1 defect
+    return "defect"
+  
+  strat_choice = tit_for_tat(player)
+  
+  if len(opp_memory) == 49:   #Calculate opponent score
+    my_memory = player.get_self_memory()
+    opp_score = 0
+
+    for i, opp_choice in enumerate(opp_memory): # Calculate opponent_score
+      if my_memory[i] == "cooperate":
+        if opp_choice == "cooperate":
+          opp_score += 3
+        else:
+          opp_score += 5
+      elif my_memory[i] == "defect":
+        if opp_choice == "defect":
+          opp_score += 1
+        #else opp_score += 0 # Not needed if they cooperate
+    
+    if opp_score >= player.get_score():
+      strat_choice = bad_guy(player)
+   
+  return strat_choice
 
 #Add players here when adding them to the tournament 
 def get_players(number_of_turns):
@@ -210,7 +236,7 @@ def get_players(number_of_turns):
   players.append(Player('hoi4', heart_of_iron_4))
   players.append(Player('name_here', random_or_preset_choices, Player.get_choice_pattern_array( [1, 1, 0, 1, 1, 1, 0, 1, 1, 1] ,number_of_turns)))
   players.append(Player('Bob', random_or_preset_choices, Player.get_choice_pattern_array([1, 0, 1, 1, 1, 1, 0, 1, 1, 1], number_of_turns)))
-
+  players.append(Player('A^2', tit_for_devil))
   return players
   
 
