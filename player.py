@@ -237,6 +237,8 @@ def get_players(number_of_turns):
   players.append(Player('name_here', random_or_preset_choices, Player.get_choice_pattern_array( [1, 1, 0, 1, 1, 1, 0, 1, 1, 1] ,number_of_turns)))
   players.append(Player('Bob', random_or_preset_choices, Player.get_choice_pattern_array([1, 0, 1, 1, 1, 1, 0, 1, 1, 1], number_of_turns)))
   players.append(Player('A^2', tit_for_devil))
+  players.append(Player('kaynes', random_or_preset_choices, Player.get_chance_array(75 ,number_of_turns)))
+  players.append(Player('Jeff', bad_guy))
   return players
   
 
