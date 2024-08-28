@@ -88,6 +88,28 @@ class Player:
 
     return output_array
   
+  '''
+  IMPORTANT: This does not require 0's and 1's. The array could just be 'defect' or 'cooperate'.
+  Make sure you know how you're implementing this function.
+  choice_pattern is an array with a set pattern that is want to be repeated.
+  This function takes that array, and the number of rounds, and repeates said pattern.
+  Note: Patterns that don't divide evenly into the number of rounds are truncated and appended to the end
+  '''
+  def get_choice_pattern_array(choice_pattern, length_of_round):
+    output_array = []
+    # Calculate elements
+    number_of_full_patterns = length_of_round // len(choice_pattern)
+    partial_pattern_length = length_of_round % len(choice_pattern)
+    print("full: ", number_of_full_patterns)
+    print("partial: ", partial_pattern_length)
+    for _ in range(number_of_full_patterns):
+      output_array.extend(choice_pattern)
+    if partial_pattern_length > 0:  # Guard against adding an extra element 
+      output_array.extend(choice_pattern[:partial_pattern_length])  # Only add up to the cut-off
+  
+
+    return output_array
+  
   def set_chance_array(self, chance_array):
     self.chance_array = chance_array
 
@@ -135,7 +157,7 @@ def good_guy(player):
 def bad_guy(player):
   return "defect"
 
-def half_and_half(player):
+def random_or_preset_choices(player):
   bool_choice = player.get_next_array_element()
   if bool_choice: # 1 == defect
     return "defect"
@@ -177,17 +199,18 @@ def heart_of_iron_4(player):
     return mode
   else: # Safety in case mode is not set somehow
     return "defect"
-  
+
 
 #Add players here when adding them to the tournament 
 def get_players(number_of_turns):
   players = []
-  players.append(Player('50/50', half_and_half, Player.get_chance_array(50, number_of_turns)))
+  players.append(Player('50/50', random_or_preset_choices, Player.get_chance_array(50, number_of_turns)))
   players.append(Player('Mr.Moore', good_guy))
   players.append(Player('devil', bad_guy))
   players.append(Player('tit_for_tat', tit_for_tat))
   players.append(Player('inverse_tft', inverse_tit_for_tat))
   players.append(Player('hoi4', heart_of_iron_4))
+  players.append(Player('name_here', random_or_preset_choices, Player.get_choice_pattern_array( [1, 1, 0, 1, 1, 1, 0, 1, 1, 1] ,number_of_turns)))
 
   return players
   
@@ -196,18 +219,18 @@ def get_players(number_of_turns):
 
 def main():
   ROUND_LENGTH = 10
-  fifty_fifty = Player('50/50', half_and_half, Player.get_chance_array(50, ROUND_LENGTH))
-  hoi4 = Player('hoi4', heart_of_iron_4)
+  fifty_fifty = Player('50/50', random_or_preset_choices, Player.get_chance_array(50, ROUND_LENGTH))
+  name_here = Player('name_here', random_or_preset_choices)
   fifty_fifty.print_all()
   print("###############\n")
-  hoi4.print_all()
+  name_here.print_all()
   print("###############\nChoices:\n")
   print("50/50", fifty_fifty.get_choice())
-  print("hoi4", hoi4.get_choice())
+  print("hoi4", name_here.get_choice())
   print("###############\n")
   fifty_fifty.print_all()
   print("###############\n")
-  hoi4.print_all()
+  name_here.print_all()
 
 if __name__ == "__main__":
   main()
