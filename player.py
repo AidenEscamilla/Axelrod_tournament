@@ -9,6 +9,7 @@ class Player:
     self.strategy = strategy
     self.chance_array = chance_array
     self.chance_iter = 0
+    self.temp_strat = None
 
   def __str__(self):
     return f"{self.name} scored: {self.total_score}"
@@ -59,6 +60,12 @@ class Player:
   
   def get_choice(self):
     return self.strategy(self)
+  
+  def set_temp_strat(self, strat_to_remember):
+    self.temp_strat = strat_to_remember
+
+  def get_temp_strat_result(self):
+    return self.temp_strat(self)
 
   '''
   IMPORTANT: chance entered is chance of 1's. Will be used as chance of defecting. a.k.a defecting = 1
@@ -237,6 +244,40 @@ def cool_beans(player):
   else:
     return "defect"
 
+def check_random(opponent_memory, self_memory):
+  strategies = [good_guy, bad_guy, tit_for_tat, inverse_tit_for_tat]
+
+  for strat in strategies:  # Go through every strat known
+    temp = Player("temp", strat)
+    if len(self_memory) > 0:  #guard against array out of bounds
+      for i in range(len(self_memory)): # mini tournament for the strat
+        choice1 = temp.get_choice()
+        choice2 = self_memory[i]
+        temp.add_choices(choice2, choice1)
+
+      if temp.get_self_memory() == opponent_memory:
+        return False
+
+      temp.reset() 
+  # If we make it here, we didn't match any strategies  
+  return True 
+
+def super_strat(player):
+  opp_memory = player.get_opponent_memory()
+
+  if len(opp_memory) <= 1:  # first 2 turns defect
+    return "defect"
+  elif len(opp_memory) == 2 and opp_memory[:2] == ["cooperate", "defect"]:  # Tft detector?
+    player.set_temp_strat(good_guy)
+  elif opp_memory[:2] in [["defect", "defect"], ["defect", "cooperate"], ["cooperate","cooperate"]] and len(opp_memory) == 2:
+    player.set_temp_strat(bad_guy)
+
+  if len(opp_memory) % 10 == 0: #every 10 turns
+    if check_random(opp_memory, player.get_self_memory()):  # if opponent is random
+      player.set_temp_strat(tit_for_tat)  # switch to tit_for_tat
+
+  return player.get_temp_strat_result()
+
 #Add players here when adding them to the tournament 
 def get_players(number_of_turns):
   players = []
@@ -252,6 +293,7 @@ def get_players(number_of_turns):
   players.append(Player('kaynes', random_or_preset_choices, Player.get_chance_array(75 ,number_of_turns)))
   players.append(Player('Jeff', bad_guy))
   players.append(Player('Cool_beans', cool_beans))
+  players.append(Player('DaSupaStrat', super_strat))
   return players
   
 
