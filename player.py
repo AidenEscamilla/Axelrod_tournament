@@ -278,6 +278,18 @@ def super_strat(player):
 
   return player.get_temp_strat_result()
 
+def name_here(player):
+  opp_memory = player.get_opponent_memory()
+  if len(opp_memory) > 2: # Added this guard here
+    if opp_memory[:3] == ["cooperate", "defect", "defect"]: # detect myself
+      return "cooperate"
+    elif opp_memory[:3] == ["cooperate", "cooperate", "defect"]:  # detect tft
+      return "cooperate"
+  elif len(opp_memory) == 0:  # Turn 1 defect
+    return "cooperate"
+  
+  return "defect" # default when nothing else returns cooperate
+
 #Add players here when adding them to the tournament 
 def get_players(number_of_turns):
   players = []
@@ -294,6 +306,7 @@ def get_players(number_of_turns):
   players.append(Player('Jeff', bad_guy))
   players.append(Player('Cool_beans', cool_beans))
   players.append(Player('DaSupaStrat', super_strat))
+  players.append(Player('name_here', name_here))
   return players
   
 
