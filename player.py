@@ -65,6 +65,8 @@ class Player:
     self.temp_strat = strat_to_remember
 
   def get_temp_strat_result(self):
+    if self.temp_strat == None:
+      return None
     return self.temp_strat(self)
 
   '''
@@ -162,7 +164,7 @@ def good_guy(player):
 def bad_guy(player):
   return "defect"
 
-def random_or_preset_choices(player):
+def random_or_preset_choices(player): # 50%/ 50%
   bool_choice = player.get_next_array_element()
   if bool_choice: # 1 == defect
     return "defect"
@@ -285,10 +287,49 @@ def name_here(player):
       return "cooperate"
     elif opp_memory[:3] == ["cooperate", "cooperate", "defect"]:  # detect tft
       return "cooperate"
-  elif len(opp_memory) == 0:  # Turn 1 defect
+  elif len(opp_memory) == 0:  # Turn 1 be nice
     return "cooperate"
   
   return "defect" # default when nothing else returns cooperate
+
+def computer_goose(player):
+  opp_memory = player.get_opponent_memory()
+  my_memory = player.get_self_memory()
+
+  if len(opp_memory) in [0, 1]: # first 2 rounds
+    return "defect"
+  
+  if opp_memory[:2] == ["cooperate", "cooperate"]:
+    if len(opp_memory) == 3 and opp_memory[2] == "defect":
+      return "defect"
+    else:
+      player.set_temp_strat(bad_guy)
+  elif opp_memory[:2] == ["defect", "defect"]:
+    if len(opp_memory) == 3 and opp_memory[2] == "cooperate":
+      return "defect"
+    else:
+      player.set_temp_strat(bad_guy)
+  elif opp_memory[:2] == ["cooperate", "defect"]:
+    if len(opp_memory) == 3 and opp_memory[2] == "cooperate":
+      return "defect"
+    elif len(opp_memory) < 3:
+      player.set_temp_strat(bad_guy)
+      return "cooperate"
+  elif opp_memory[:2] == ["defect", "cooperate"]:
+    if len(opp_memory) == 3 and opp_memory[2] == "defect":
+      return "defect"
+    else:
+      return "defect"
+    
+  #if count_cooperates(opp_memory) > 50 or count_defects(opp_memory) > 50
+  if len(my_memory) > 5:
+    if my_memory[-6:] == opp_memory[-6:]:
+      return "cooperate"
+    
+  if player.get_temp_strat_result() == None:
+    return "defect"
+  else:
+    return player.get_temp_strat_result()
 
 #Add players here when adding them to the tournament 
 def get_players(number_of_turns):
@@ -307,6 +348,7 @@ def get_players(number_of_turns):
   players.append(Player('Cool_beans', cool_beans))
   players.append(Player('DaSupaStrat', super_strat))
   players.append(Player('name_here', name_here))
+  players.append(Player('Computer Goose', computer_goose))
   return players
   
 

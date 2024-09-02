@@ -31,15 +31,18 @@ def main():
   players_1 = get_players(number_of_turns)
   players_2 = get_players(number_of_turns)
   run_simulation(number_of_turns, players_1, players_2)
-  
-  for player in players_1:
-    print(f"{player.name}: {player.total_score}")
 
   names_list = []
   score_list = []
   for player in players_1:
     names_list.append(player.name)
     score_list.append(player.total_score)
+
+  results = {}  # In able to print the winners (probably a better way to do this)
+  for i, name in enumerate(names_list): #create hash map
+    results[name] = score_list[i]
+  for key, value in sorted(results.items(), key=lambda x: x[1], reverse=True):  # Print most to least points
+    print("{} : {}".format(key, value))
 
   display_graph(names_list, score_list)
   
