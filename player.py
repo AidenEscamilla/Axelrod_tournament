@@ -1,4 +1,6 @@
 import numpy as np
+import random
+import time
 
 class Player:
   def __init__(self, name, strategy, chance_array=None):
@@ -10,6 +12,7 @@ class Player:
     self.chance_array = chance_array
     self.chance_iter = 0
     self.temp_strat = None
+    self.opponent_score = 0
 
   def __str__(self):
     return f"{self.name} scored: {self.total_score}"
@@ -24,9 +27,17 @@ class Player:
   def reset_iterator(self):
     self.chance_iter = 0
 
+  def reset_temp_strat(self):
+    self.temp_strat = None
+
+  def reset_opponent_score(self):
+    self.opponent_score = 0
+
   def reset(self):
     self.reset_memory()
     self.reset_iterator()
+    self.reset_temp_strat()
+    self.reset_opponent_score()
 
   def iterate_chance(self):
     self.chance_iter += 1
@@ -38,13 +49,17 @@ class Player:
     if opponents_choice == "cooperate":
       if self_choice == "cooperate":
         self.add_score(3) # nice & nice = +3 points
+        self.add_opponent_score(3)
       else:
         self.add_score(5) # nice & betrayed them = +5 points
+        self.add_opponent_score(0)
     else:
       if self_choice == "cooperate":
         self.add_score(0) # defect & nice (was betrayed) = +0 points
+        self.add_opponent_score(5)
       else:
         self.add_score(1) # defect & defect = +1 points
+        self.add_opponent_score(1)
   
   def get_opponent_memory(self):
     return self.opponent_memory
@@ -54,15 +69,37 @@ class Player:
   
   def add_score(self, points):
     self.total_score += points
+
+  def add_opponent_score(self, points):
+    self.opponent_score += points
   
   def get_score(self):
     return self.total_score
+  
+  def get_opponent_score(self):
+    return self.opponent_score
   
   def get_choice(self):
     return self.strategy(self)
   
   def set_temp_strat(self, strat_to_remember):
     self.temp_strat = strat_to_remember
+
+  def get_opponent_number_of_defects(self):
+    count = 0
+    for choice in self.opponent_memory:
+      if choice == "defect":
+        count += 1
+    
+    return count
+  
+  def get_opponent_number_of_cooperates(self):
+    count = 0
+    for choice in self.opponent_memory:
+      if choice == "cooperate":
+        count += 1
+    
+    return count
 
   def get_temp_strat_result(self):
     if self.temp_strat == None:
@@ -129,6 +166,7 @@ class Player:
   
 
 # Strategies
+# Class 1 strats
 
 def tit_for_tat(player):
   opp_memory = player.get_opponent_memory()
@@ -280,7 +318,7 @@ def super_strat(player):
 
   return player.get_temp_strat_result()
 
-def name_here(player):
+def recognize(player):
   opp_memory = player.get_opponent_memory()
   if len(opp_memory) > 2: # Added this guard here
     if opp_memory[:3] == ["cooperate", "defect", "defect"]: # detect myself
@@ -331,24 +369,149 @@ def computer_goose(player):
   else:
     return player.get_temp_strat_result()
 
+# Class 2 strats
+def semi_random(player):
+  opp_memory = player.get_opponent_memory()
+  round_number = len(opp_memory)
+  choice_for_the_round = round_number % 7
+
+  # Get random choice
+  random.seed(time.time())
+  random_choice = random.randint(0,1)
+  if random_choice: # 1 == defect
+    random_choice = "defect"
+  else: # 0 == cooperate
+    random_choice = "cooperate"
+
+  match choice_for_the_round:
+    case 0:
+      return random_choice
+    case 1:
+      return random_choice
+    case 2:
+      # Get opposite of opponent last did
+      opposite_of_opponent = opp_memory[-1]
+
+      if opposite_of_opponent == "defect":  # If they last defected
+        opposite_of_opponent = "cooperate"  # Swap to cooperate
+      else:                                 # Else, they must've cooperated last time
+        opposite_of_opponent = "defect"     # Swap to defect
+      
+      return opposite_of_opponent
+    case 3:
+      return opp_memory[-1] # Do what enemy last did 
+    case 4:
+      return opp_memory[-1] # Do what enemy last did 
+    case 5:
+      return random_choice
+    case 6:
+      # Get opposite of opponent last did
+      opposite_of_opponent = opp_memory[-1]
+
+      if opposite_of_opponent == "defect":  # If they last defected
+        opposite_of_opponent = "cooperate"  # Swap to cooperate
+      else:                                 # Else, they must've cooperated last time
+        opposite_of_opponent = "defect"     # Swap to defect
+      
+      return opposite_of_opponent
+
+def be_nice_twice(player):
+  opp_memory = player.get_opponent_memory()
+  myself_memory = player.get_self_memory()
+
+  if len(opp_memory) == 0:  # Turn 1 be mean
+    return "defect"
+  
+  if (player.get_score() - player.get_opponent_score()) >= 7: # If we are winning by 7 or more
+    return "defect" # Ignore everything and defect
+  else:
+    if opp_memory[-1] == "defect":  # if they were mean, be mean back
+      return "defect"
+    elif opp_memory[-1] == "cooperate" and (myself_memory[-2:] != ["cooperate", "cooperate"]):  # if they were nice, be nice for a max of 2 turns
+      return "cooperate"
+    else: # if i've been nice for 2 turns
+      return "defect"
+
+def semi_random_2(player):
+  opp_memory = player.get_opponent_memory()
+  round_number = len(opp_memory)
+  choice_for_the_round = round_number % 9
+
+  # Get random choice
+  random.seed(time.time())
+  random_choice = random.randint(0,1)
+  if random_choice: # 1 == defect
+    random_choice = "defect"
+  else: # 0 == cooperate
+    random_choice = "cooperate"
+
+  match choice_for_the_round:
+    case 0:
+      return "defect"
+    case 1:
+      return "defect"
+    case 2:
+      return random_choice
+    case 3:
+      return opp_memory[-1] # Do what enemy last did 
+    case 4:
+      # Get opposite of opponent last did
+      opposite_of_opponent = opp_memory[-1]
+
+      if opposite_of_opponent == "defect":  # If they last defected
+        opposite_of_opponent = "cooperate"  # Swap to cooperate
+      else:                                 # Else, they must've cooperated last time
+        opposite_of_opponent = "defect"     # Swap to defect
+      
+      return opposite_of_opponent
+    case 5:
+      return "defect"
+    case 6:
+      # Do the opponents first move
+      return opp_memory[0]
+    case 7:
+      return random_choice
+    case 8:
+      defects = player.get_opponent_number_of_defects()
+      cooperates = player.get_opponent_number_of_cooperates()
+      if defects > cooperates:
+        return "cooperate"
+      else: # Else coops > defects
+        return "defect"
+
+
+
 #Add players here when adding them to the tournament 
 def get_players(number_of_turns):
   players = []
-  players.append(Player('50/50', random_or_preset_choices, Player.get_chance_array(50, number_of_turns)))
-  players.append(Player('Mr.Moore', good_guy))
-  players.append(Player('devil', bad_guy))
-  players.append(Player('tit_for_tat', tit_for_tat))
-  players.append(Player('inverse_tft', inverse_tit_for_tat))
-  players.append(Player('hoi4', heart_of_iron_4))
-  players.append(Player('name_here', random_or_preset_choices, Player.get_choice_pattern_array( [1, 1, 0, 1, 1, 1, 0, 1, 1, 1] ,number_of_turns)))
-  players.append(Player('Bob', random_or_preset_choices, Player.get_choice_pattern_array([1, 0, 1, 1, 1, 1, 0, 1, 1, 1], number_of_turns)))
-  players.append(Player('A^2', tit_for_devil))
-  players.append(Player('kaynes', random_or_preset_choices, Player.get_chance_array(75 ,number_of_turns)))
-  players.append(Player('Jeff', bad_guy))
-  players.append(Player('Cool_beans', cool_beans))
-  players.append(Player('DaSupaStrat', super_strat))
-  players.append(Player('name_here', name_here))
-  players.append(Player('Computer Goose', computer_goose))
+  # Class 1
+  # players.append(Player('Name_here1', recognize))
+  # players.append(Player('50/50', random_or_preset_choices, Player.get_chance_array(50, number_of_turns)))
+  # players.append(Player('Mr.Moore', good_guy))
+  # players.append(Player('DaSupaStrat', super_strat))
+  # players.append(Player('inverse_tft', inverse_tit_for_tat))
+  # players.append(Player('hoi4', heart_of_iron_4))
+  # players.append(Player('Name_here2', random_or_preset_choices, Player.get_choice_pattern_array( [1, 1, 0, 1, 1, 1, 0, 1, 1, 1] ,number_of_turns)))
+  # players.append(Player('Bob', random_or_preset_choices, Player.get_choice_pattern_array([1, 0, 1, 1, 1, 1, 0, 1, 1, 1], number_of_turns)))
+  # players.append(Player('A^2', tit_for_devil))
+  # players.append(Player('kaynes', random_or_preset_choices, Player.get_chance_array(75 ,number_of_turns)))
+  # players.append(Player('Jeff', bad_guy))
+  # players.append(Player('Cool_beans', cool_beans))
+  # players.append(Player('tit_for_tat', tit_for_tat))
+  # players.append(Player('DaSupaStrat', super_strat))
+  # players.append(Player('Computer Goose', computer_goose))
+
+  # Class 2
+  # players.append(Player('50/50', random_or_preset_choices, Player.get_chance_array(50, number_of_turns)))
+  # players.append(Player('Mr.Moore', good_guy))
+  # players.append(Player('inverse_tft', inverse_tit_for_tat))
+  # players.append(Player('tit_for_tat', tit_for_tat))
+  # players.append(Player('devil', bad_guy))
+  players.append(Player('semi_random', semi_random))
+  players.append(Player('demoralizing_dolphin', be_nice_twice))
+  players.append(Player('team_Elo', random_or_preset_choices, Player.get_choice_pattern_array([1, 1, 1, 1, 0, 1, 1, 0], number_of_turns)))
+  players.append(Player('glass_saturn', semi_random_2))
+  
   return players
   
 
