@@ -479,7 +479,25 @@ def semi_random_2(player):
       else: # Else coops > defects
         return "defect"
 
+def two_chances(player):
+  opp_memory = player.get_opponent_memory()
+  myself_memory = player.get_self_memory()
 
+  if len(opp_memory) == 0:  # on turn 1
+    return "cooperate"      # be nice
+  
+
+  if player.get_opponent_number_of_defects() == 1:
+    return "cooperate"
+  elif player.get_opponent_number_of_defects() == 2 and myself_memory[-1] == "cooperate": 
+    player.set_temp_strat(tit_for_tat)
+
+  temp_strat = player.get_temp_strat_result()
+  if temp_strat:  # If there is no temp_strat, this will fail/be false
+    return temp_strat
+  else:
+    return "cooperate"
+      
 
 #Add players here when adding them to the tournament 
 def get_players(number_of_turns):
@@ -502,16 +520,18 @@ def get_players(number_of_turns):
   # players.append(Player('Computer Goose', computer_goose))
 
   # Class 2
-  # players.append(Player('50/50', random_or_preset_choices, Player.get_chance_array(50, number_of_turns)))
-  # players.append(Player('Mr.Moore', good_guy))
-  # players.append(Player('inverse_tft', inverse_tit_for_tat))
-  # players.append(Player('tit_for_tat', tit_for_tat))
-  # players.append(Player('devil', bad_guy))
+  players.append(Player('50/50', random_or_preset_choices, Player.get_chance_array(50, number_of_turns)))
+  players.append(Player('Mr.Moore', good_guy))
+  players.append(Player('inverse_tft', inverse_tit_for_tat))
+  players.append(Player('tit_for_tat', tit_for_tat))
+  players.append(Player('devil', bad_guy))
   players.append(Player('semi_random', semi_random))
-  players.append(Player('demoralizing_dolphin', be_nice_twice))
+  players.append(Player('demo_dolphin', be_nice_twice))
   players.append(Player('team_Elo', random_or_preset_choices, Player.get_choice_pattern_array([1, 1, 1, 1, 0, 1, 1, 0], number_of_turns)))
   players.append(Player('glass_saturn', semi_random_2))
-  
+  players.append(Player('vroom', random_or_preset_choices, Player.get_choice_pattern_array([1, 1, 1, 1, 1, 0], number_of_turns)))
+  players.append(Player('carlson_method', two_chances))
+  players.append(Player('wipers', random_or_preset_choices, Player.get_chance_array(40 ,number_of_turns)))
   return players
   
 
