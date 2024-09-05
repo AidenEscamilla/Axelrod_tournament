@@ -487,9 +487,10 @@ def two_chances(player):
     return "cooperate"      # be nice
   
 
-  if player.get_opponent_number_of_defects() == 1:
-    return "cooperate"
+  if player.get_opponent_number_of_defects() == 1:  # If they're mean once
+    return "cooperate"  # Give them a chance
   elif player.get_opponent_number_of_defects() == 2 and myself_memory[-1] == "cooperate": 
+    # if they're mean twice and I gave them a chance
     player.set_temp_strat(tit_for_tat)
 
   temp_strat = player.get_temp_strat_result()
@@ -497,7 +498,10 @@ def two_chances(player):
     return temp_strat
   else:
     return "cooperate"
-      
+    
+def grass_touchers(player):
+  return tit_for_tat(player)
+
 
 #Add players here when adding them to the tournament 
 def get_players(number_of_turns):
@@ -532,6 +536,8 @@ def get_players(number_of_turns):
   players.append(Player('vroom', random_or_preset_choices, Player.get_choice_pattern_array([1, 1, 1, 1, 1, 0], number_of_turns)))
   players.append(Player('carlson_method', two_chances))
   players.append(Player('wipers', random_or_preset_choices, Player.get_chance_array(40 ,number_of_turns)))
+  players.append(Player('grass_touchers', grass_touchers))
+  players.append(Player('pickles', random_or_preset_choices, Player.get_choice_pattern_array([0,1,1,0,0,1,1,0,1,1],number_of_turns)))
   return players
   
 
