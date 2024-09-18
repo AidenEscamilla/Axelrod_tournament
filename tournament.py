@@ -27,9 +27,9 @@ def display_graph(names, scores):
 
 def main():
   number_of_turns = int(input("Enter the number of turns per round: "))
-
-  players_1 = get_players(number_of_turns)
-  players_2 = get_players(number_of_turns)
+  class_of_players = input("Which band is playing? (Saffron, Cerulean, Lilac, All): ").lower()
+  players_1 = get_players(number_of_turns, class_of_players)
+  players_2 = get_players(number_of_turns, class_of_players)
   run_simulation(number_of_turns, players_1, players_2)
 
   names_list = []

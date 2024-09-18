@@ -636,50 +636,72 @@ def pattern_recognition(player):
 
 
 #Add players here when adding them to the tournament 
-def get_players(number_of_turns):
+def get_players(number_of_turns, class_name):
   players = []
+
   # Bots
-  players.append(Player('50/50', random_or_preset_choices, Player.get_chance_array(50, number_of_turns)))
-  players.append(Player('Mr.Moore', good_guy))
-  players.append(Player('inverse_tft', inverse_tit_for_tat))
-  players.append(Player('tit_for_tat', tit_for_tat))
-  players.append(Player('devil', bad_guy))
+  bot_players = [
+    Player('50/50', random_or_preset_choices, Player.get_chance_array(50, number_of_turns)),
+    Player('Mr.Moore', good_guy),
+    Player('inverse_tft', inverse_tit_for_tat),
+    Player('tit_for_tat', tit_for_tat),
+    Player('devil', bad_guy),
+  ]
 
   # Class 1
-  # players.append(Player('Name_here1', recognize))
-  # players.append(Player('DaSupaStrat', super_strat))
-  # players.append(Player('hoi4', heart_of_iron_4))
-  # players.append(Player('Name_here2', random_or_preset_choices, Player.get_choice_pattern_array( [1, 1, 0, 1, 1, 1, 0, 1, 1, 1] ,number_of_turns)))
-  # players.append(Player('Bob', random_or_preset_choices, Player.get_choice_pattern_array([1, 0, 1, 1, 1, 1, 0, 1, 1, 1], number_of_turns)))
-  # players.append(Player('A^2', tit_for_devil))
-  # players.append(Player('kaynes', random_or_preset_choices, Player.get_chance_array(75 ,number_of_turns)))
-  # players.append(Player('Jeff', bad_guy))
-  # players.append(Player('Cool_beans', cool_beans))
-  # players.append(Player('DaSupaStrat', super_strat))
-  # players.append(Player('Computer Goose', computer_goose))
+  saffron_players = [
+    Player('Name_here1', recognize),
+    Player('DaSupaStrat', super_strat),
+    Player('hoi4', heart_of_iron_4),
+    Player('Name_here2', random_or_preset_choices, Player.get_choice_pattern_array( [1, 1, 0, 1, 1, 1, 0, 1, 1, 1] ,number_of_turns)),
+    Player('Bob', random_or_preset_choices, Player.get_choice_pattern_array([1, 0, 1, 1, 1, 1, 0, 1, 1, 1], number_of_turns)),
+    Player('A^2', tit_for_devil),
+    Player('kaynes', random_or_preset_choices, Player.get_chance_array(75 ,number_of_turns)),
+    Player('Jeff', bad_guy),
+    Player('Cool_beans', cool_beans),
+    Player('DaSupaStrat', super_strat),
+    Player('Computer Goose', computer_goose)
+  ]
 
   # Class 2
-  # players.append(Player('addie_abby', semi_random))
-  # players.append(Player('demo_dolphin', be_nice_twice))
-  # players.append(Player('team_Elo', random_or_preset_choices, Player.get_choice_pattern_array([1, 1, 1, 1, 0, 1, 1, 0], number_of_turns)))
-  # players.append(Player('glass_saturn', semi_random_2))
-  # players.append(Player('vroom', random_or_preset_choices, Player.get_choice_pattern_array([1, 1, 1, 1, 1, 0], number_of_turns)))
-  # players.append(Player('carlson_method', two_chances))
-  # players.append(Player('wipers', random_or_preset_choices, Player.get_chance_array(40 ,number_of_turns)))
-  # players.append(Player('grass_touchers', grass_touchers))
-  # players.append(Player('pickles', random_or_preset_choices, Player.get_choice_pattern_array([0,1,1,0,0,1,1,0,1,1],number_of_turns)))
+  cerulean_players = [
+    Player('a_a', semi_random),
+    Player('demo_dolphin', be_nice_twice),
+    Player('team_Elo', random_or_preset_choices, Player.get_choice_pattern_array([1, 1, 1, 1, 0, 1, 1, 0], number_of_turns)),
+    Player('glass_saturn', semi_random_2),
+    Player('vroom', random_or_preset_choices, Player.get_choice_pattern_array([1, 1, 1, 1, 1, 0], number_of_turns)),
+    Player('carlson_method', two_chances),
+    Player('wipers', random_or_preset_choices, Player.get_chance_array(40 ,number_of_turns)),
+    Player('grass_touchers', grass_touchers),
+    Player('pickles', random_or_preset_choices, Player.get_choice_pattern_array([0,1,1,0,0,1,1,0,1,1],number_of_turns))
+  ]
 
   # Class 3
-  players.append(Player('dominators', dominators, Player.get_chance_array(80,4)))
-  players.append(Player('serpent', meaner_tft))
-  players.append(Player("Aztec_em", swap_random, Player.get_chance_array(40,5)))
-  players.append(Player('Gold_qs', mean_tft))
-  players.append(Player('name_here', bad_guy))
-  players.append(Player('Lemon', random_or_preset_choices, Player.get_chance_array(70, number_of_turns)))
-  players.append(Player('op_code', special_case))
-  players.append(Player('pg13', tricky_tft, None, number_of_turns))
-  players.append(Player('we_rock_inc.', random_or_preset_choices, Player.get_chance_array(70, number_of_turns)))
-  players.append(Player('bananas', pattern_recognition))
+  lilac_players = [
+    Player('dominators', dominators, Player.get_chance_array(80,4)),
+    Player('serpent', meaner_tft),
+    Player("Aztec_em", swap_random, Player.get_chance_array(40,5)),
+    Player('Gold_qs', mean_tft),
+    Player('name_here', bad_guy),
+    Player('Lemon', random_or_preset_choices, Player.get_chance_array(70, number_of_turns)),
+    Player('op_code', special_case),
+    Player('pg13', tricky_tft, None, number_of_turns),
+    Player('we_rock_inc.', random_or_preset_choices, Player.get_chance_array(70, number_of_turns)),
+    Player('bananas', pattern_recognition)
+  ]
+
+  players += bot_players # Add the bots
+  if class_name == "saffron": # Class 1
+    players += saffron_players
+  elif class_name == "cerulean": # Class 2
+    players += cerulean_players
+  elif class_name == "lilac": # Class 3
+    players += lilac_players
+  else: # All classes
+    players += saffron_players
+    players += cerulean_players
+    players += lilac_players
+
   return players
   
 
